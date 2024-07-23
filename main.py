@@ -9,7 +9,18 @@ import random
 openai.api_key = 'openai_key'
 
 class ImageLabelingApp:
+    """
+    A Tkinter application for suggesting clothing outfits based on images from different folders.
+    """
+
     def __init__(self, root, image_folders):
+        """
+        Initialize the application with the root Tkinter window and image folders.
+
+        Parameters:
+        root (Tk): The root Tkinter window.
+        image_folders (list): A list of paths to folders containing images.
+        """
         self.root = root
         self.root.title("Clothing Suggestion App")
 
@@ -29,20 +40,25 @@ class ImageLabelingApp:
         self.images = []  # List to store ImageTk.PhotoImage objects
         self.selected_outfits = []  # List to store outfits that the user has selected with "Yes" response
 
+        # Create and pack the label to display images
         self.label = ttk.Label(root)
         self.label.pack(padx=10, pady=10)
 
-        button_frame_height = 50  # Adjust this value to control the height of the button frame
-
+        # Create and pack the "Yes" button
         self.button_yes = ttk.Button(root, text="Yes", command=self.label_yes)
-        self.button_yes.pack(side=tk.LEFT, padx=5, pady=(0, button_frame_height))
+        self.button_yes.pack(side=tk.LEFT, padx=5, pady=(0, 50))
 
+        # Create and pack the "No" button
         self.button_no = ttk.Button(root, text="No", command=self.label_no)
-        self.button_no.pack(side=tk.RIGHT, padx=5, pady=(0, button_frame_height))
+        self.button_no.pack(side=tk.RIGHT, padx=5, pady=(0, 50))
 
+        # Load the first image
         self.load_image()
 
     def load_image(self):
+        """
+        Load and display the next set of images from the folders.
+        """
         if all(index < len(images) for index, images in zip(self.current_image_indices, self.image_files_list)):
             images_in_folder = []
             for folder_index, current_index in enumerate(self.current_image_indices):
@@ -77,6 +93,9 @@ class ImageLabelingApp:
             self.button_no.config(state=tk.NORMAL)
 
     def label_yes(self):
+        """
+        Handle the "Yes" button click event, indicating that the user likes the current set of images.
+        """
         print(f"Images {', '.join(str(index + 1) for index in self.current_image_indices)}: Yes")
         self.selected_outfits.append([
             os.path.join(self.image_folders[i], self.image_files_list[i][min(index, len(self.image_files_list[i]) - 1)])
@@ -85,10 +104,16 @@ class ImageLabelingApp:
         self.next_image()
 
     def label_no(self):
+        """
+        Handle the "No" button click event, indicating that the user does not like the current set of images.
+        """
         print(f"Images {', '.join(str(index + 1) for index in self.current_image_indices)}: No")
         self.next_image()
 
     def next_image(self):
+        """
+        Load the next image in each folder or generate an outfit if all images have been reviewed.
+        """
         for i in range(len(self.current_image_indices)):
             self.current_image_indices[i] += 1
 
@@ -100,6 +125,9 @@ class ImageLabelingApp:
             self.generate_outfit()
 
     def generate_outfit(self):
+        """
+        Generate and display an outfit based on the selected images using the DALL·E API.
+        """
         if not self.selected_outfits:
             self.label.config(text="No outfits selected.")
             return
@@ -118,8 +146,7 @@ class ImageLabelingApp:
         generated_image_url = response['data'][0]['url']
 
         # Display the generated image
-        generated_img = Image.open(requests.get(generated_image_url, stream=True).raw).resize((300, 300),
-                                                                                              resample=Image.LANCZOS)
+        generated_img = Image.open(requests.get(generated_image_url, stream=True).raw).resize((300, 300), resample=Image.LANCZOS)
         self.tk_image = ImageTk.PhotoImage(generated_img)
         self.label.config(image=self.tk_image, text="Generated Outfit")
 
