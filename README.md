@@ -36,7 +36,7 @@ The Outfit Idea Generator is an innovative application designed to help users cu
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/yourusername/outfit-idea-generator.git
+    git clone https://github.com/spencerwozniak/outfit-idea-generator.git
     cd outfit-idea-generator
     ```
 
